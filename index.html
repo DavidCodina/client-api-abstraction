@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="google" value="notranslate">
+  <title>Abstraction Demo</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+    crossorigin="anonymous"
+  >
+  <link rel="stylesheet" href="style.css">
+</head>
+
+
+<body>
+  <div id="spinner-modal">
+    <div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+  </div>
+
+
+  <header id="primary-header">
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#!">DavTek Industries</a>
+      </div>
+    </nav>
+  </header>
+
+
+  <!--  ========================================================================
+                                    main
+  ========================================================================== -->
+
+
+  <main class="py-5">
+    <div class="container-fluid px-5">
+
+      <div class="d-flex justify-content-center mb-5">
+        <button id="get-todos-button" class="btn btn-primary me-3">GET Todos</button>
+        <button id="post-todo-button" class="btn btn-primary me-3">Create Todo</button>
+        <button id="patch-todo-button" class="btn btn-primary me-3">Update Todo</button>
+        <button id="delete-todo-button" class="btn btn-primary">Delete Todo</button>
+      </div>
+
+
+      <article class="article">
+        <h2 class="fancy-h2">Importance of Abstraction:</h2>
+
+
+        <p>Abstraction is a process whereby you hide the implementation details and instead only
+        provide the functionality. Suppose we write several API calls with Axios across various javascript files.
+        This means that our application is now tied to a specific implementation.</p>
+
+
+        <p>But what if, at some point, we want to change from Axios to the native Fetch API or XMLHttpRequest?
+        Or, even worse, suppose a new version of Axios is released with breaking changes in the API, and we need
+        to go back through all of our code to update each file accordingly.
+        This won’t be an easy task.</p>
+
+
+        <p>To overcome the problem, we can create an abstraction layer that will encapsulate the real implementation.
+        By abstracing everything related to API logic into a service layer we make our main code leaner and more maintainable.
+        With this abstraction, we gain the following benefits:</p>
+
+
+        <ul class="mb-5 child-mb-3">
+          <li>Improve readability and testability by abstracting the HTTP code away from the UI code or business logic.</li>
+
+          <li>
+            We have one place with our single source of truth. One place to make modifications
+            (e.g., fixing breaking changes, changing query params, etc.).
+            We can swap the implementation without breaking anything.
+          </li>
+
+          <li>One place to transform responses into something that’s useful for the other parts of the codebase.</li>
+        </ul>
+
+
+        <p>All of this seems to be reminiscent of the <a href="https://www.toptal.com/javascript/comprehensive-guide-javascript-design-patterns" target="_blank">Command Pattern</a>:</p>
+
+
+        <div class="mx-5 mb-5">
+          <p>The command pattern is useful in cases when we want to decouple objects executing
+          the commands from objects issuing the commands. For example, imagine a scenario where
+          our application is using a large number of API service calls. Then, let’s say that the
+          API services change. We would have to modify the code wherever the APIs that changed are called.</p>
+
+
+          <p>This would be a great place to implement an abstraction layer, which would
+          separate the objects calling an API service from the objects which are telling them
+          when to call the API service. This way, we avoid modification in all of the places
+          where we have a need to call the service, but rather have to change only the objects
+          which are making the call itself, which is only one place.</p>
+        </div>
+
+
+        <p><strong>Conclusion:</strong> If you’re making a lot of HTTP requests, it might be better to abstract them into their
+        own module instead of calling them directly.</p>
+      </article>
+
+
+      <!--  ====================================================================
+
+      ====================================================================== -->
+
+
+      <article class="article">
+        <h2 class="fancy-h2">Demo:</h2>
+
+
+        <p>What would all of this actually look like in practice? Suppose we want
+        to make a <code>GET</code> request for some data from jsonplaceholder.typicode.com.
+        We could create a separate file called jph.js, and do this:</p>
+
+
+        <pre><code>
+  function getTodos(){
+    return new Promise((resolve, reject) => {
+      axios.get('https://jsonplaceholder.typicode.com/todos?_limit=5', {
+        timeout: 1000 * 10
+      })
+      .then(res  => { resolve(res); })
+      .catch(err => { reject(err); });
+    });
+  }
+        </code></pre>
+
+
+        <p>In the above example, <code>axios.get()</code> returns a <code>Promise</code>,
+        but so too does our <code>getTodos()</code>. <code>getTodos()</code> does one thing:
+        It fetches data. However, this implementation allows us to react to the result of the
+        call to <code>getTodos()</code> accordingly. Thus when we call <code>getTodos()</code>
+        in this particular case we do this:</p>
+
+
+        <pre><code>
+  function handleGetTodosButtonClick(){
+    showSpinnerModal(true);
+
+    getTodos()
+    .then(res => {
+      showSpinnerModal(false);
+      console.log("The request was successful. Here is the response: ");
+      console.log(res);
+    })
+
+    .catch(err => {
+      showSpinnerModal(false);
+      console.log("The request was unsuccessful. Here is the response: ");
+      console.log(err);
+    });
+  }
+        </code></pre>
+
+
+        <p>This implementation is flexible in that other invocations of <code>getTodos()</code>
+        can handle the response differently if needed.</p>
+      </article>
+    </div><!-- <div class="container"> -->
+  </main>
+
+
+  <!--  ========================================================================
+
+  ========================================================================== -->
+
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+    crossorigin="anonymous"
+  ></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="scripts/jph.js"></script>
+  <script>
+
+
+  function showSpinnerModal(bool){
+    const spinnerModal = document.getElementById('spinner-modal');
+    if (bool){ spinnerModal.classList.add('show');    }
+    else     { spinnerModal.classList.remove('show'); }
+  }
+
+
+
+
+  function handleGetTodosButtonClick(){
+    showSpinnerModal(true);
+    getTodos()
+    .then(res => {
+      showSpinnerModal(false);
+      console.log("The GET request was successful. Here is the response: ");
+      console.log(res);
+    })
+    .catch(err => {
+      showSpinnerModal(false);
+      console.log("The GET request was unsuccessful. Here is the response: ");
+      console.log(err);
+    });
+  }
+
+
+
+
+  function handlePostTodoButtonClick(){
+    showSpinnerModal(true);
+    postTodo()
+    .then(res => {
+      showSpinnerModal(false);
+      console.log("The POST request was successful. Here is the response: ");
+      console.log(res);
+    })
+    .catch(err => {
+      showSpinnerModal(false);
+      console.log("The POST request was unsuccessful. Here is the response: ");
+      console.log(err);
+    });
+  }
+
+
+
+
+  function handleUpdateTodoButtonClick(){
+    showSpinnerModal(true);
+    updateTodo()
+    .then(res => {
+      showSpinnerModal(false);
+      console.log("The PATCH request was successful. Here is the response: ");
+      console.log(res);
+    })
+    .catch(err => {
+      showSpinnerModal(false);
+      console.log("The PATCH request was unsuccessful. Here is the response: ");
+      console.log(err);
+    });
+  }
+
+
+
+
+  function handleDeleteTodoButtonClick(){
+    showSpinnerModal(true);
+    deleteTodo()
+    .then(res => {
+      showSpinnerModal(false);
+      console.log("The DELETE request was successful. Here is the response: ");
+      console.log(res);
+    })
+    .catch(err => {
+      showSpinnerModal(false);
+      console.log("The DELETE request was unsuccessful. Here is the response: ");
+      console.log(err);
+    });
+  }
+
+
+
+
+  document.getElementById('get-todos-button').addEventListener('click',   handleGetTodosButtonClick);
+  document.getElementById('post-todo-button').addEventListener('click',   handlePostTodoButtonClick);
+  document.getElementById('patch-todo-button').addEventListener('click',  handleUpdateTodoButtonClick);
+  document.getElementById('delete-todo-button').addEventListener('click', handleDeleteTodoButtonClick);
+  </script>
+</body>
+</html>
